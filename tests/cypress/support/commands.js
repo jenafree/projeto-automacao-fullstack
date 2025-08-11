@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker';
 import './dsl';
 
-// Gerador de dados fakes para o formulário
 Cypress.Commands.add('gerarDadosFormulario', (override = {}) => {
   const dados = {
     nome: faker.person.fullName(),

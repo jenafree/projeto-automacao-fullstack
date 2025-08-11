@@ -1,88 +1,92 @@
 // Espera o carregamento completo do conteúdo HTML da página antes de executar o código JS
 document.addEventListener('DOMContentLoaded', () => {
-
-  // Pega o formulário com id "formulario" do HTML
   const form = document.getElementById('formulario');
+  const mensagemEl = document.getElementById('mensagem');
+  const countEl = document.getElementById('count-mensagem');
+  const bgEl = document.getElementById('bg');
+  const bgUrl = window.__CONFIG__?.BG_URL;
+  if (bgEl && bgUrl) {
+    bgEl.style.setProperty('--bg-image', `url('${bgUrl}')`);
+  }
+  mensagemEl.addEventListener('input', () => {
+    countEl.textContent = `${mensagemEl.value.length}/500`;
+  });
 
-  // Função para exibir mensagens tipo toast (pop-up temporário no canto da tela)
-  // Recebe a mensagem (texto) e o tipo (sucesso ou erro)
-  const showMensagem = (mensagem, tipo = 'sucesso') => {
-    // Seleciona o container onde os toasts serão exibidos
-    const container = document.getElementById('toast-container');
-
-    // Cria um novo elemento <div> para o toast
-    const toast = document.createElement('div');
-    toast.className = `toast ${tipo}`; // Aplica a classe toast e a classe do tipo (sucesso/erro)
-    toast.textContent = mensagem; // Define o texto do toast
-
-    // Adiciona o toast no container (vai aparecer na tela)
-    container.appendChild(toast);
-
-    // Remove o toast da tela após 4 segundos
-    setTimeout(() => toast.remove(), 4000);
+  const DRAFT_KEY = 'form-draft-v1';
+  const saveDraft = () => localStorage.setItem(DRAFT_KEY, JSON.stringify(FormDSL.values()));
+  const loadDraft = () => {
+    const d = localStorage.getItem(DRAFT_KEY);
+    if (d) FormDSL.setValues(JSON.parse(d));
   };
+  const debounce = (fn, ms=300) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+  document.addEventListener('DOMContentLoaded', loadDraft);
+  form.addEventListener('input', debounce(saveDraft, 300));
 
-  // Adiciona um ouvinte de evento de "submit" no formulário
+  const progressEl = document.getElementById('progress-bar');
+  const updateProgress = () => {
+    const { nome, email, mensagem } = FormDSL.values();
+    const fields = [nome, email, mensagem];
+    const filled = fields.filter(v => v && v.length > 0).length;
+    const pct = Math.round((filled / fields.length) * 100);
+    progressEl.style.width = `${pct}%`;
+  };
+  form.addEventListener('input', updateProgress);
+  updateProgress();
+
   form.addEventListener('submit', async (e) => {
-    e.preventDefault(); // Impede o comportamento padrão de recarregar a página
+    e.preventDefault();
 
-    // Lê os valores dos campos e remove espaços em branco com trim()
-    const nome = form.nome.value.trim();
-    const email = form.email.value.trim();
-    const mensagem = form.mensagem.value.trim();
+    const { nome, email, mensagem } = FormDSL.values();
 
-    // Verifica se algum campo está vazio
-    if (!nome || !email || !mensagem) {
-      // Exibe um toast de erro se tiver campo vazio
-      showMensagem('❌ Preencha todos os campos obrigatórios.', 'erro');
-      return; // Interrompe o envio
+    const setFieldError = (input, message) => {
+      const errorEl = document.getElementById(`erro-${input.name}`);
+      const hasError = Boolean(message);
+      input.setAttribute('aria-invalid', hasError ? 'true' : 'false');
+      if (errorEl) errorEl.textContent = message || '';
+    };
+
+    const validateField = (input) => {
+      if (input.name === 'email' && !Validacao.emailValido(input.value.trim())) {
+        return setFieldError(input, 'Por favor, insira um e-mail válido.');
+      }
+      if (!input.value.trim()) {
+        return setFieldError(input, 'Campo obrigatório.');
+      }
+      setFieldError(input, '');
+    };
+
+    if (!Validacao.camposObrigatorios({ nome, email, mensagem })) {
+      [form.nome, form.email, form.mensagem].forEach(validateField);
+      Toast.erro('Preencha todos os campos obrigatórios.');
+      return;
     }
 
-    // Expressão regular para validar o formato do e-mail
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      // Exibe toast se o e-mail não passar na validação
-      showMensagem('❌ Por favor, insira um e-mail válido.', 'erro');
-      return; // Interrompe o envio
+    if (!Validacao.emailValido(email)) {
+      validateField(form.email);
+      Toast.erro('Por favor, insira um e-mail válido.');
+      return;
     }
 
-    // Objeto com os dados que serão enviados para o backend
     const dados = { nome, email, mensagem };
 
-    // Desabilita botão durante envio
-    const submitButton = form.querySelector('button[type="submit"]');
+    const submitButton = FormDSL.submitBtn;
     const previousDisabled = submitButton.disabled;
-    submitButton.disabled = true;
+    FormDSL.disableSubmit(true);
 
     try {
-      const apiBaseUrl = window.__CONFIG__?.API_URL || 'http://localhost:8000';
-      // Envia os dados para a API backend (FastAPI) usando método POST
-      const resposta = await fetch(`${apiBaseUrl}/api/form`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }, // Informa que está enviando JSON
-        body: JSON.stringify(dados), // Converte o objeto para string JSON
-      });
-
-      // Aguarda a resposta do servidor em formato JSON
-      const resultado = await resposta.json();
-
-      // Verifica se o envio foi bem-sucedido (código 200 OK)
+      const { resposta, resultado } = await Api.enviarFormulario(dados);
       if (resposta.ok) {
-        // Exibe toast de sucesso e limpa o formulário
-        showMensagem('✅ Formulário enviado com sucesso!', 'sucesso');
-        form.reset(); // Limpa todos os campos
+        Toast.sucesso('Formulário enviado com sucesso!');
+        FormDSL.reset();
       } else {
-        // Se o servidor retornou erro, exibe a mensagem de erro vinda do backend
         const msg = resultado?.mensagem || 'Erro desconhecido.';
-        showMensagem('❌ Erro ao enviar: ' + msg, 'erro');
+        Toast.erro('Erro ao enviar: ' + msg);
       }
-
     } catch (erro) {
-      // Se houver erro de conexão com o backend (ex: servidor offline), exibe toast de erro
-      console.error(erro); // Mostra o erro no console para debug
-      showMensagem('❌ Erro na conexão com o servidor.', 'erro');
+      console.error(erro);
+      Toast.erro('Erro na conexão com o servidor.');
     } finally {
-      submitButton.disabled = previousDisabled;
+      FormDSL.disableSubmit(previousDisabled);
     }
   });
 });

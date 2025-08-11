@@ -1,5 +1,3 @@
-// DSL para testes E2E sem POM: comandos simples/compostos e navigator fluente
-
 export const sel = {
   inputNome: '[data-cy="input-nome"]',
   inputEmail: '[data-cy="input-email"]',
@@ -55,11 +53,9 @@ class FormNavigator {
   }
 }
 
-// Navigators
 Cypress.Commands.add('navegador', () => new FormNavigator());
 Cypress.Commands.add('abrirApp', () => cy.visit('/'));
 
-// Comandos simples
 Cypress.Commands.add('preencherNome', (nome, options = {}) => {
   cy.get(sel.inputNome).clear().type(nome, options);
 });
@@ -76,7 +72,6 @@ Cypress.Commands.add('submeterFormulario', () => {
   cy.get(sel.btnEnviar).click();
 });
 
-// Comandos compostos
 Cypress.Commands.add('preencherFormulario', (dados, options = {}) => {
   const { nome, email, mensagem } = dados || {};
   if (nome) cy.get(sel.inputNome).clear().type(nome, options);
@@ -89,7 +84,6 @@ Cypress.Commands.add('enviarFormularioCom', (dados, options = {}) => {
   cy.submeterFormulario();
 });
 
-// Asserções utilitárias
 Cypress.Commands.add('verificarToastSucesso', (textoParcial) => {
   cy.get(sel.toastSucesso).should('be.visible');
   if (textoParcial) cy.get(sel.toastSucesso).should('contain.text', textoParcial);

@@ -1,60 +1,60 @@
 <!DOCTYPE html>
-<!-- Define o tipo de documento como HTML5 -->
 <html lang="pt-br">
-<!-- Define o idioma da página como português do Brasil -->
 
 <head>
   <meta charset="UTF-8" />
-  <!-- Define o conjunto de caracteres como UTF-8 (suporta acentuação, por exemplo) -->
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Garante que a página se adapte ao tamanho da tela (responsivo em dispositivos móveis) -->
 
   <title>Formulário de Contato</title>
-  <!-- Título da aba do navegador -->
 
   <link rel="stylesheet" href="style.css" />
-  <!-- Link para o arquivo CSS responsável pelos estilos da página -->
+  <link rel="stylesheet" href="tokens.css" />
   <script>
-    // Config simples para parametrizar URL da API sem rebuild
     window.__CONFIG__ = {
-      API_URL: (window.API_URL_OVERRIDE || 'http://localhost:8000')
+      API_URL: (window.API_URL_OVERRIDE || 'http://localhost:8000'),
+      BG_URL: (window.BG_URL_OVERRIDE || '')
     };
   </script>
 </head>
 
 <body>
-  <!-- Corpo do site visível ao usuário -->
+  <div class="bg-kenburns" id="bg"></div>
 
   <div class="container">
-    <!-- Container centralizado que agrupa o conteúdo do formulário -->
 
-    <h1>Formulário de Contato</h1>
-    <!-- Título principal da página -->
+    <h1 tabindex="-1">Formulário de Contato</h1>
+
+    <div class="progress" aria-hidden="true">
+      <div class="progress__bar" id="progress-bar"></div>
+    </div>
 
     <form id="formulario" novalidate>
-      <!-- Formulário com id "formulario", usado para acesso no JS -->
-      <!-- Atributo `novalidate` desativa a validação automática do navegador
-           permitindo que façamos validações personalizadas com JavaScript -->
 
-      <input type="text" name="nome" placeholder="Nome" data-cy="input-nome" />
-      <!-- Campo de texto para o nome, sem validação HTML nativa (JS vai validar) -->
+      <label for="nome">Nome</label>
+      <input id="nome" type="text" name="nome" placeholder="Nome" data-cy="input-nome" autocomplete="name" required minlength="3" />
+      <small id="erro-nome" class="erro" aria-live="polite"></small>
 
-      <input type="email" name="email" placeholder="Email" data-cy="input-email" />
-      <!-- Campo para e-mail. O navegador pode sugerir correções, mas a validação é feita via JS -->
+      <label for="email">Email</label>
+      <input id="email" type="email" name="email" placeholder="Email" data-cy="input-email" autocomplete="email" inputmode="email" required />
+      <small id="erro-email" class="erro" aria-live="polite"></small>
 
-      <textarea name="mensagem" placeholder="Mensagem" data-cy="input-mensagem"></textarea>
-      <!-- Campo de texto maior para escrever a mensagem -->
+      <label for="mensagem">Mensagem</label>
+      <textarea id="mensagem" name="mensagem" placeholder="Mensagem" data-cy="input-mensagem" required maxlength="500" aria-describedby="count-mensagem"></textarea>
+      <div id="count-mensagem" aria-live="polite">0/500</div>
+      <small id="erro-mensagem" class="erro" aria-live="polite"></small>
 
-      <button type="submit" data-cy="btn-enviar">Enviar</button>
-      <!-- Botão para enviar o formulário -->
+      <button type="submit" data-cy="btn-enviar" aria-live="polite">
+        <span class="label">Enviar</span>
+        <span class="spinner" aria-hidden="true"></span>
+      </button>
+      
     </form>
   </div>
 
-  <div id="toast-container"></div>
-  <!-- Container onde aparecerão as mensagens de toast (sucesso ou erro) geradas via JS -->
+  <div id="toast-container" role="region" aria-live="polite" aria-atomic="true"></div>
 
+  <script src="dsl.js"></script>
   <script src="script.js"></script>
-  <!-- Importa o JavaScript da página que faz toda a lógica de validação e envio -->
 </body>
 </html>

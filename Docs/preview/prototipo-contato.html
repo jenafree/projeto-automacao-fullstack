@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Protótipo - Página de Contato</title>
+  <link rel="stylesheet" href="../../frontend/tokens.css" />
+  <style>
+    :root {
+      --container-w: 520px;
+    }
+    body {
+      font-family: var(--font-body);
+      margin: 0; padding: 40px; background: linear-gradient(180deg, #f7f9fc, #eef2f7);
+      color: var(--color-text);
+    }
+    .wrap {
+      max-width: var(--container-w);
+      margin: 0 auto;
+    }
+    .hero {
+      margin-bottom: 18px;
+      opacity: 0; transform: translateY(10px);
+      animation: fadeUp .5s ease-out .05s forwards;
+    }
+    .hero h1 { margin: 0 0 6px 0; font-size: 28px; }
+    .hero p { margin: 0; color: var(--color-muted); }
+
+    .card {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 22px 22px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress { height: 6px; background:#e6eaf0; border-radius: var(--radius-sm); overflow:hidden; margin: 0 0 14px;}
+    .progress__bar { height: 100%; width: 0%; background: var(--color-primary); transition: width .25s ease; }
+
+    .field { margin-bottom: 16px; opacity:0; transform: translateY(6px); animation: fadeUp .45s ease-out forwards; }
+    .field:nth-child(2) { animation-delay: .10s }
+    .field:nth-child(3) { animation-delay: .15s }
+    .field:nth-child(4) { animation-delay: .20s }
+    label { display:block; font-weight:600; margin-bottom: 6px; }
+    input, textarea {
+      width:100%; padding: 12px; font-size: 15px; border-radius: var(--radius-md);
+      border: 1px solid var(--color-border); outline: none; background: #fff;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    input:focus, textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(0,120,215,.12) }
+    textarea { height: 112px; resize: vertical; }
+    .row { display: flex; gap: 12px; }
+    .row .col { flex:1 }
+    .help { min-height: 18px; color: var(--color-muted); font-size: 12px; margin-top: 6px }
+    .error { color: var(--color-error); }
+
+    .actions { display:flex; justify-content:flex-end; margin-top: 6px; }
+    .btn {
+      appearance:none; border:none; color:#fff; background: var(--color-primary);
+      padding: 10px 16px; border-radius: var(--radius-md); cursor:pointer;
+      display:inline-flex; align-items:center; gap:8px; font-weight:600;
+      transform: translateZ(0); transition: transform .06s ease, box-shadow .2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,.08) }
+    .btn:active { transform: translateY(0) scale(.99) }
+    .btn .spinner {
+      width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.9);
+      border-right-color: transparent; border-radius: 50%; display:none; animation: spin .8s linear infinite;
+    }
+    .btn.is-loading .spinner { display:inline-block }
+    .btn.is-loading .label { opacity: .8 }
+
+    .toast {
+      position: fixed; right: 20px; bottom: 20px; padding: 12px 16px; border-radius: var(--radius-md);
+      color:#fff; font-weight:600; box-shadow: var(--shadow-sm); opacity:0; transform: translateY(6px);
+      animation: fadeUp .36s ease-out forwards;
+    }
+    .toast.success { background: var(--color-success) }
+    .toast.error { background: var(--color-error) }
+
+    @keyframes fadeUp {
+      to { opacity:1; transform: translateY(0) }
+    }
+    @keyframes spin { to { transform: rotate(360deg) } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero" aria-hidden="false">
+      <h1>Contato</h1>
+      <p>Envie sua mensagem. Protótipo de interações e estados.</p>
+    </section>
+
+    <section class="card" role="form" aria-labelledby="titulo-contato">
+      <div class="progress" aria-hidden="true"><div class="progress__bar" id="pb"></div></div>
+      <div class="field">
+        <label for="pNome">Nome</label>
+        <input id="pNome" placeholder="Seu nome" autocomplete="name" />
+        <div class="help" id="hNome"></div>
+      </div>
+      <div class="field">
+        <label for="pEmail">Email</label>
+        <input id="pEmail" placeholder="seu@email.com" autocomplete="email" inputmode="email" />
+        <div class="help" id="hEmail"></div>
+      </div>
+      <div class="field">
+        <label for="pMsg">Mensagem</label>
+        <textarea id="pMsg" placeholder="Escreva sua mensagem"></textarea>
+        <div class="help" id="hMsg">0/500</div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="btnEnviar">
+          <span class="label">Enviar</span>
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const $ = (s, r=document) => r.querySelector(s);
+    const pb = $('#pb');
+    const nome = $('#pNome');
+    const email = $('#pEmail');
+    const msg = $('#pMsg');
+    const hNome = $('#hNome');
+    const hEmail = $('#hEmail');
+    const hMsg = $('#hMsg');
+    const btn = $('#btnEnviar');
+
+    function emailValido(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+    function updateProgress() {
+      const vals = [nome.value.trim(), email.value.trim(), msg.value.trim()];
+      const filled = vals.filter(Boolean).length;
+      const pct = Math.round((filled/vals.length)*100);
+      pb.style.width = pct + '%';
+    }
+    function updateCount() { hMsg.textContent = (msg.value || '').length + '/500'; }
+    [nome, email, msg].forEach(el => el.addEventListener('input', () => { updateProgress(); updateCount(); validate(el); }));
+    updateProgress(); updateCount();
+
+    function setHelp(el, text, isError) {
+      const map = { pNome: hNome, pEmail: hEmail, pMsg: hMsg };
+      const help = map[el.id];
+      if (!help) return;
+      help.textContent = text || help.textContent;
+      help.classList.toggle('error', Boolean(isError));
+    }
+    function validate(el) {
+      if (el === email) {
+        if (!email.value.trim()) { setHelp(email, 'Campo obrigatório.', true); return false; }
+        if (!emailValido(email.value.trim())) { setHelp(email, 'Por favor, insira um e-mail válido.', true); return false; }
+        setHelp(email, '', false); return true;
+      }
+      if (!el.value.trim()) { setHelp(el, 'Campo obrigatório.', true); return false; }
+      setHelp(el, '', false); return true;
+    }
+
+    function showToast(text, kind) {
+      const t = document.createElement('div');
+      t.className = 'toast ' + (kind === 'error' ? 'error' : 'success');
+      t.textContent = text;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2800);
+    }
+
+    btn.addEventListener('click', async () => {
+      const ok = [validate(nome), validate(email), validate(msg)].every(Boolean);
+      if (!ok) { showToast('Preencha os campos obrigatórios.', 'error'); return; }
+
+      btn.classList.add('is-loading');
+      btn.disabled = true;
+      await new Promise(r => setTimeout(r, 900)); // simula envio
+
+      btn.classList.remove('is-loading');
+      btn.disabled = false;
+      showToast('Formulário enviado com sucesso!', 'success');
+    });
+  </script>
+</body>
+</html>
+
+
