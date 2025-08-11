@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "3000:3000"
+
+  backend:
+    image: tiangolo/uvicorn-gunicorn-fastapi:python3.11
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:80"
+    environment:
+      - APP_MODULE=main:app
+
+  cypress:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cypress
+    depends_on:
+      - frontend
+
+  robot:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.robot
+    depends_on:
+      - backend

@@ -1,0 +1,22 @@
+
+WORKDIR /e2e
+COPY ./tests/cypress ./tests/cypress
+CMD ["npx", "cypress", "run"]
+
+
+
+# Imagem oficial do Cypress com tudo incluso
+FROM cypress/included:13.6.6
+
+# Define o diretório de trabalho dentro do container
+WORKDIR /e2e
+
+# Copia os testes E2E do projeto para dentro do container
+COPY ./tests/cypress ./tests/cypress
+
+# Apenas mensagem para debug/controle
+RUN echo "Cypress container pronto para rodar os testes E2E"
+
+# Comando padrão do container
+# (Você pode sobrescrever esse comando no docker-compose.yml se quiser rodar diferente)
+CMD ["npx", "cypress", "run"]

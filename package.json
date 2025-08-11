@@ -1,0 +1,26 @@
+{
+    "name": "projeto-automacao-fullstack",
+    "version": "1.0.0",
+    "description": "Projeto Fullstack com automações e testes end-to-end",
+    "scripts": {
+        "frontend": "npx serve ./frontend",
+        "backend": "cd backend && .venv\\Scripts\\activate && uvicorn main:app --reload --port 8000",
+        "backend:setup": "cd backend && python -m venv .venv && .venv\\Scripts\\python -m pip install -U pip && .venv\\Scripts\\pip install -r requirements.txt",
+        "cypress": "npx cypress open",
+        "start": "concurrently \"npm run frontend\" \"npm run backend\"",
+        "test:e2e": "cypress open",
+        "test:e2e:ci": "cypress run",
+        "lint:security:py": "bandit -r backend -q || exit 0",
+        "lint:security:deps:py": "pip-audit -r backend/requirements.txt || exit 0",
+        "lint:security:deps:js": "npm audit --audit-level=high || exit 0",
+        "lint:secrets": "gitleaks detect --no-banner --exit-code 0",
+        "lint:containers": "trivy fs --exit-code 0 --severity HIGH,CRITICAL ."
+    },
+    "devDependencies": {
+        "@faker-js/faker": "^9.6.0",
+        "concurrently": "^8.2.2",
+        "cypress": "^14.3.0",
+        "eslint": "^8.57.0",
+        "eslint-plugin-cypress": "^2.14.0"
+    }
+}

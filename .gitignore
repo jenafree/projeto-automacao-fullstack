@@ -1,0 +1,64 @@
+
+# ============================================
+# .gitignore PROFISSIONAL — Fullstack Project
+# Feito com atenção para evitar erros comuns 💪
+# ============================================
+
+# ========================
+# PYTHON BACKEND (.venv)
+# ========================
+__pycache__/             # Cache de bytecode do Python
+*.py[cod]                # Arquivos compilados do Python
+*.log                    # Logs da aplicação
+*.sqlite3                # SQLite local
+.venv/                   # Ambiente virtual Python
+.env                     # Variáveis sensíveis
+*.env                    # Arquivos .env com prefixos
+
+# ========================
+# NODE / FRONTEND / CYPRESS
+# ========================
+node_modules/            # Pacotes npm
+dist/                    # Build de produção
+build/                   # Build alternativa (React/Vite)
+.nyc_output/             # Cobertura de testes
+coverage/                # Relatório de cobertura
+cypress/screenshots/     # Prints de erro Cypress
+cypress/videos/          # Vídeos Cypress
+cypress/downloads/       # Downloads Cypress
+
+
+# ========================
+# SYSTEM / IDE
+# ========================
+.vscode/                 # Config VSCode
+.idea/                   # Config JetBrains
+.DS_Store                # macOS
+Thumbs.db
+ehthumbs.db
+*.swp                    # Vim swap files
+*.swo
+*.bak
+
+# ========================
+# OS-specific
+# ========================
+*.~lock.*                # Lock temporário
+
+# ========================
+# VS CODE HISTORY EXTENSIONS
+# ========================
+.history/
+
+# ========================
+# OUTROS OPCIONAIS
+# ========================
+*.tmp
+*.temp
+logs/
+*.log.*
+.mypy_cache/
+.pyrightconfig.json
+.eggs/
+*.egg-info/
+node_modules

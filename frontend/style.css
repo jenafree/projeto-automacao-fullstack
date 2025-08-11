@@ -1,0 +1,86 @@
+/* Estiliza o corpo da página */
+body {
+  font-family: Arial, sans-serif;         /* Define a fonte principal */
+  background: #f0f0f0;                    /* Cor de fundo cinza claro */
+  padding: 50px;                          /* Espaço interno ao redor do conteúdo */
+}
+
+/* Estilo para o contêiner do formulário */
+.container {
+  background: white;                      /* Fundo branco */
+  padding: 30px;                          /* Espaçamento interno */
+  max-width: 500px;                       /* Largura máxima do formulário */
+  margin: 0 auto;                         /* Centraliza horizontalmente */
+  border-radius: 8px;                     /* Arredonda os cantos */
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);   /* Sombra sutil ao redor */
+}
+
+/* Estilo compartilhado entre input e textarea */
+input, textarea {
+  width: 100%;                            /* Ocupa toda a largura do container */
+  margin-bottom: 15px;                   /* Espaço entre os campos */
+  padding: 10px;                          /* Espaço interno dos campos */
+  font-size: 1em;                         /* Tamanho da fonte relativo */
+  border: 1px solid #ccc;                 /* Borda cinza clara */
+  border-radius: 4px;                     /* Cantos levemente arredondados */
+}
+
+/* Estilo adicional específico para o campo textarea */
+textarea {
+  height: 100px;                          /* Altura fixa do campo de mensagem */
+  resize: none;                           /* Impede que o usuário redimensione */
+}
+
+/* Estilo do botão de envio */
+button {
+  padding: 10px 20px;                     /* Espaço interno do botão */
+  background-color: #0078d7;              /* Azul Microsoft */
+  color: white;                           /* Cor do texto */
+  border: none;                           /* Remove borda padrão */
+  border-radius: 5px;                     /* Bordas arredondadas */
+  cursor: pointer;                        /* Mostra a mãozinha ao passar o mouse */
+}
+
+/* Contêiner onde os toasts (avisos) vão aparecer */
+#toast-container {
+  position: fixed;                        /* Fixa o elemento na tela */
+  bottom: 20px;                           /* A 20px da parte inferior */
+  right: 20px;                            /* A 20px da lateral direita */
+  z-index: 1000;                          /* Garante que fique acima dos demais elementos */
+  display: flex;                          /* Layout em linha ou coluna */
+  flex-direction: column;                /* Alinha os toasts verticalmente */
+  gap: 10px;                              /* Espaço entre cada toast */
+}
+
+/* Estilo base de cada toast */
+.toast {
+  padding: 12px 20px;                     /* Espaço interno */
+  border-radius: 5px;                     /* Bordas arredondadas */
+  font-weight: bold;                      /* Texto em negrito */
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);    /* Sombra sutil */
+  animation: slideIn 0.3s ease-out;       /* Animação ao aparecer */
+  min-width: 220px;                       /* Tamanho mínimo */
+  color: white;                           /* Cor do texto */
+}
+
+/* Toast com sucesso (verde) */
+.toast.sucesso {
+  background-color: #28a745;             /* Verde sucesso (Bootstrap-style) */
+}
+
+/* Toast com erro (vermelho) */
+.toast.erro {
+  background-color: #dc3545;             /* Vermelho erro (Bootstrap-style) */
+}
+
+/* Animação para entrada do toast */
+@keyframes slideIn {
+  from {
+    opacity: 0;                          /* Começa invisível */
+    transform: translateX(50px);        /* Começa deslocado para a direita */
+  }
+  to {
+    opacity: 1;                          /* Fica visível */
+    transform: translateX(0);           /* Volta para posição normal */
+  }
+}

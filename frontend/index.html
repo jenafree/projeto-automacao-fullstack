@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!-- Define o tipo de documento como HTML5 -->
+<html lang="pt-br">
+<!-- Define o idioma da página como português do Brasil -->
+
+<head>
+  <meta charset="UTF-8" />
+  <!-- Define o conjunto de caracteres como UTF-8 (suporta acentuação, por exemplo) -->
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Garante que a página se adapte ao tamanho da tela (responsivo em dispositivos móveis) -->
+
+  <title>Formulário de Contato</title>
+  <!-- Título da aba do navegador -->
+
+  <link rel="stylesheet" href="style.css" />
+  <!-- Link para o arquivo CSS responsável pelos estilos da página -->
+  <script>
+    // Config simples para parametrizar URL da API sem rebuild
+    window.__CONFIG__ = {
+      API_URL: (window.API_URL_OVERRIDE || 'http://localhost:8000')
+    };
+  </script>
+</head>
+
+<body>
+  <!-- Corpo do site visível ao usuário -->
+
+  <div class="container">
+    <!-- Container centralizado que agrupa o conteúdo do formulário -->
+
+    <h1>Formulário de Contato</h1>
+    <!-- Título principal da página -->
+
+    <form id="formulario" novalidate>
+      <!-- Formulário com id "formulario", usado para acesso no JS -->
+      <!-- Atributo `novalidate` desativa a validação automática do navegador
+           permitindo que façamos validações personalizadas com JavaScript -->
+
+      <input type="text" name="nome" placeholder="Nome" data-cy="input-nome" />
+      <!-- Campo de texto para o nome, sem validação HTML nativa (JS vai validar) -->
+
+      <input type="email" name="email" placeholder="Email" data-cy="input-email" />
+      <!-- Campo para e-mail. O navegador pode sugerir correções, mas a validação é feita via JS -->
+
+      <textarea name="mensagem" placeholder="Mensagem" data-cy="input-mensagem"></textarea>
+      <!-- Campo de texto maior para escrever a mensagem -->
+
+      <button type="submit" data-cy="btn-enviar">Enviar</button>
+      <!-- Botão para enviar o formulário -->
+    </form>
+  </div>
+
+  <div id="toast-container"></div>
+  <!-- Container onde aparecerão as mensagens de toast (sucesso ou erro) geradas via JS -->
+
+  <script src="script.js"></script>
+  <!-- Importa o JavaScript da página que faz toda a lógica de validação e envio -->
+</body>
+</html>
