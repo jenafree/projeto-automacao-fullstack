@@ -4,8 +4,7 @@ describe('Formulário de Contato - Testes Completos', () => {
   const URL = 'http://localhost:3000';
 
   beforeEach(() => {
-    // Acessa a aplicação antes de cada teste
-    cy.visit(URL);
+    cy.abrirApp();
   });
 
   it('✅ Deve enviar o formulário com dados válidos (mockado)', () => {
@@ -20,49 +19,33 @@ describe('Formulário de Contato - Testes Completos', () => {
       body: { mensagem: 'Formulário enviado com sucesso!' }
     }).as('postForm');
 
-    // Preenche o formulário com delay para visualização clara
-    cy.get('[data-cy="input-nome"]').type(nome, { delay: 80 });
-    cy.get('[data-cy="input-email"]').type(email, { delay: 80 });
-    cy.get('[data-cy="input-mensagem"]').type(mensagem, { delay: 50 });
-
-    // Submete o formulário
-    cy.get('[data-cy="btn-enviar"]').click();
+    // DSL: navigator fluente com preenchimento e envio
+    cy
+      .navegador()
+      .preencher({ nome, email, mensagem }, { delay: 60 })
+      .enviar();
 
     // Aguarda a requisição interceptada
     cy.wait('@postForm');
 
-    // Valida a exibição do toast de sucesso
-    cy.get('#toast-container .toast.sucesso')
-      .should('contain.text', 'Formulário enviado com sucesso!')
-      .and('be.visible');
+    cy.deveVerSucesso?.('Formulário enviado com sucesso!');
+    // fallback utilitário
+    cy.verificarToastSucesso('Formulário enviado com sucesso!');
   });
 
   it('❌ Deve exibir erro ao tentar enviar com campos vazios', () => {
-    // Clica no botão sem preencher os campos
-    cy.get('[data-cy=btn-enviar]').click();
+    cy.submeterFormulario();
 
-    // Valida o toast de erro referente aos campos obrigatórios
-    cy.get('#toast-container .toast.erro')
-      .should('contain.text', 'Preencha todos os campos obrigatórios.')
-      .and('be.visible');
+    cy.verificarToastErro('Preencha todos os campos obrigatórios.');
   });
 
   it('❌ Deve exibir erro ao submeter e-mail inválido', () => {
     const nome = faker.person.firstName();
     const mensagem = faker.lorem.text();
 
-    // Preenche os campos com delay, mas insere e-mail inválido
-    cy.get('[data-cy="input-nome"]').type(nome, { delay: 80 });
-    cy.get('[data-cy="input-email"]').type('email-invalido', { delay: 80 });
-    cy.get('[data-cy="input-mensagem"]').type(mensagem, { delay: 50 });
+    cy.enviarFormularioCom({ nome, email: 'email-invalido', mensagem }, { delay: 60 });
 
-    // Envia o formulário
-    cy.get('[data-cy="btn-enviar"]').click();
-
-    // Valida o toast de erro sobre e-mail inválido
-    cy.get('#toast-container .toast.erro')
-      .should('contain.text', 'Por favor, insira um e-mail válido.')
-      .and('be.visible');
+    cy.verificarToastErro('Por favor, insira um e-mail válido.');
   });
 
   it('🛑 Deve exibir erro se o backend estiver fora do ar', () => {
@@ -73,18 +56,9 @@ describe('Formulário de Contato - Testes Completos', () => {
     // Força erro de rede para simular backend indisponível
     cy.intercept('POST', '**/api/form', { forceNetworkError: true }).as('postForm');
 
-    // Preenche os campos com dados válidos
-    cy.get('[data-cy="input-nome"]').type(nome, { delay: 80 });
-    cy.get('[data-cy="input-email"]').type(email, { delay: 80 });
-    cy.get('[data-cy="input-mensagem"]').type(mensagem, { delay: 50 });
+    cy.enviarFormularioCom({ nome, email, mensagem }, { delay: 60 });
 
-    // Envia o formulário
-    cy.get('[data-cy="btn-enviar"]').click();
-
-    // Valida o toast de erro de conexão
-    cy.get('#toast-container .toast.erro')
-      .should('contain.text', 'Erro na conexão com o servidor.')
-      .and('be.visible');
+    cy.verificarToastErro('Erro na conexão com o servidor.');
   });
 
   it('🚨 Deve exibir erro quando o backend retornar 500', () => {
@@ -97,15 +71,9 @@ describe('Formulário de Contato - Testes Completos', () => {
       body: { mensagem: 'Falha interna' }
     }).as('postForm500');
 
-    cy.get('[data-cy="input-nome"]').type(nome);
-    cy.get('[data-cy="input-email"]').type(email);
-    cy.get('[data-cy="input-mensagem"]').type(mensagem);
-
-    cy.get('[data-cy="btn-enviar"]').click();
+    cy.enviarFormularioCom({ nome, email, mensagem });
     cy.wait('@postForm500');
 
-    cy.get('#toast-container .toast.erro')
-      .should('contain.text', 'Erro ao enviar:')
-      .and('be.visible');
+    cy.verificarToastErro('Erro ao enviar:');
   });
 });
