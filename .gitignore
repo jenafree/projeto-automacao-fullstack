@@ -62,3 +62,9 @@ logs/
 .eggs/
 *.egg-info/
 node_modules
+
+# ========================
+# DOCUMENTAÇÃO (NAO VERSIONAR)
+# ========================
+Docs/
+docs/
