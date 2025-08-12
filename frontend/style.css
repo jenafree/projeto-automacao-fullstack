@@ -1,8 +1,8 @@
 /* Estiliza o corpo da página */
 body {
   font-family: var(--font-body);
-  background: var(--color-bg);
-  padding: 50px;                          /* Espaço interno ao redor do conteúdo */
+  background: #0b0d10;
+  padding: 50px;
 }
 
 .bg-kenburns {
@@ -30,24 +30,40 @@ body {
   100% { transform: scale(1.12) translate(2%, 2%); }
 }
 
+/* Marca e fundo pontilhado animado (modo dark) */
+.brand { position: fixed; top: 18px; left: 22px; z-index: 10; color: #e6eaf0; font-weight: 800; letter-spacing: .4px; }
+.brand__logo { font-size: 20px }
+.bg-dots { position: fixed; inset: 0; z-index: -1; pointer-events: none; background:
+  radial-gradient(2px 2px at 20px 20px, rgba(255,255,255,.08) 40%, transparent 42%) 0 0/26px 26px,
+  radial-gradient(2px 2px at 10px 10px, rgba(255,255,255,.05) 35%, transparent 40%) 0 0/26px 26px,
+  radial-gradient(2px 2px at 8px 18px, rgba(255,255,255,.03) 30%, transparent 40%) 0 0/26px 26px,
+  radial-gradient(2px 2px at 18px 8px, rgba(255,255,255,.03) 30%, transparent 40%) 0 0/26px 26px,
+  radial-gradient(2px 2px at 22px 22px, rgba(0,200,255,.10) 35%, transparent 42%) 0 0/26px 26px;
+  animation: drift 18s ease-in-out infinite alternate; }
+@keyframes drift { to { transform: translateY(-6px) translateX(6px) } }
+
 /* Estilo para o contêiner do formulário */
 .container {
-  background: var(--color-surface);
-  padding: 30px;                          /* Espaçamento interno */
-  max-width: 500px;                       /* Largura máxima do formulário */
-  margin: 0 auto;                         /* Centraliza horizontalmente */
+  padding: 30px;
+  max-width: 500px;
+  margin: 0 auto;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
+  backdrop-filter: saturate(1.2) blur(2px);
+  background: rgba(20,22,26,.84);
+  border: 1px solid rgba(255,255,255,.06);
 }
 
 /* Estilo compartilhado entre input e textarea */
 input, textarea {
-  width: 100%;                            /* Ocupa toda a largura do container */
-  margin-bottom: 15px;                   /* Espaço entre os campos */
-  padding: 10px;                          /* Espaço interno dos campos */
-  font-size: 1em;                         /* Tamanho da fonte relativo */
-  border: 1px solid var(--color-border);
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid rgba(255,255,255,.08);
   border-radius: var(--radius-sm);
+  background: rgba(255,255,255,.04);
+  color: #e6eaf0;
 }
 
 /* Estilo adicional específico para o campo textarea */
@@ -64,12 +80,14 @@ button {
   border: none;                           /* Remove borda padrão */
   border-radius: var(--radius-sm);
   cursor: pointer;                        /* Mostra a mãozinha ao passar o mouse */
+  box-shadow: 0 8px 30px rgba(0,120,215,.18);
 }
 
 label {
   display: block;
   margin-bottom: 6px;
   font-weight: 600;
+  color: #c9d1d9;
 }
 
 .erro {
